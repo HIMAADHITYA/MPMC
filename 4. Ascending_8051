@@ -1,0 +1,115 @@
+BITS 64
+
+section .data
+    arr db 25,10,45,8,32,60,15,40,5,50
+    msg db "Ascending: "
+    space db " "
+    nl db 10
+
+section .bss
+    output resb 3
+
+section .text
+global _start
+
+_start:
+    ; Bubble sort - ascending
+    mov r8,9
+
+pass:
+    mov r12,arr
+    mov r9,9
+
+compare:
+    mov al,[r12]
+    mov bl,[r12+1]
+
+    cmp al,bl
+    jbe no_swap
+
+    mov [r12],bl
+    mov [r12+1],al
+
+no_swap:
+    inc r12
+    dec r9
+    jnz compare
+
+    dec r8
+    jnz pass
+
+    ; Print message
+    mov eax,1
+    mov edi,1
+    mov rsi,msg
+    mov edx,11
+    syscall
+
+    ; Print 10 sorted numbers
+    mov r12,arr
+    mov r8,10
+
+print_loop:
+    movzx eax,byte [r12]
+    call print_number
+
+    inc r12
+    dec r8
+    jnz print_loop
+
+    ; New line
+    mov eax,1
+    mov edi,1
+    mov rsi,nl
+    mov edx,1
+    syscall
+
+    ; Exit
+    mov eax,60
+    xor edi,edi
+    syscall
+
+
+print_number:
+    cmp eax,10
+    jb one_digit
+
+    ; Two digit number
+    xor edx,edx
+    mov ebx,10
+    div ebx
+
+    add al,'0'
+    mov [output],al
+
+    add dl,'0'
+    mov [output+1],dl
+
+    mov eax,1
+    mov edi,1
+    mov rsi,output
+    mov edx,2
+    syscall
+
+    jmp print_space
+
+
+one_digit:
+    add al,'0'
+    mov [output],al
+
+    mov eax,1
+    mov edi,1
+    mov rsi,output
+    mov edx,1
+    syscall
+
+
+print_space:
+    mov eax,1
+    mov edi,1
+    mov rsi,space
+    mov edx,1
+    syscall
+
+    ret
