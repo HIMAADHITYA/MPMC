@@ -1,0 +1,75 @@
+BITS 64
+section .data
+    arr db 25,10,45,4,32,50,15,40,5,50
+    msg1 db "Largest = "
+    msg2 db "Smallest = "
+    nl db 10
+section .text
+global _start
+_start:
+    mov rsi,arr
+    mov al,[rsi]
+    mov bl,al
+    mov bh,al
+    mov rcx,9
+    inc rsi
+find:
+    mov al,[rsi]
+    cmp al,bl
+    jbe small
+    mov bl,al
+small:
+    cmp al,bh
+    jae next
+    mov bh,al
+next:
+    inc rsi
+    loop find
+    mov eax,1
+    mov edi,1
+    mov rsi,msg1
+    mov edx,10
+    syscall
+
+    movzx eax,bl
+    call print
+
+    mov eax,1
+    mov edi,1
+    mov rsi,msg2
+    mov edx,11
+    syscall
+
+    movzx eax,bh
+    call print
+
+    mov eax,60
+    xor edi,edi
+    syscall
+
+print:
+    mov esi,10
+    xor edx,edx
+    div esi
+    add eax,'0'
+    mov [num],al
+
+    mov eax,edx
+    add eax,'0'
+    mov [num+1],al
+
+    mov eax,1
+    mov edi,1
+    mov rsi,num
+    mov edx,2
+    syscall
+
+    mov eax,1
+    mov edi,1
+    mov rsi,nl
+    mov edx,1
+    syscall
+    ret
+
+section .bss
+    num resb 2
